@@ -53,6 +53,16 @@ func NewAggregatorService(providerFactory *flightprovider.FlightProviderFactory,
 
 // SearchFlights aggregates flights from all providers and returns the best flights
 // It uses filter, rank, and sort functions to process the flights
+// SearchFlights godoc
+// @Summary      Search flights
+// @Tags         Flights
+// @Description  Search flights from all providers and return the best flights
+// @Param        request  body      dto.SearchCriteria  true  "Search Criteria"
+// @Success      200      {object}  dto.SearchFlightResponse
+// @Failure      404      {object}  dto.ErrorResponse
+// @Failure      400      {object}  dto.ErrorResponse
+// @Failure      500      {object}  dto.ErrorResponse
+// @Router       /api/v1/flights/search [post]
 func (s *AggregatorService) SearchFlights(
 	ctx context.Context,
 	req dto.SearchCriteria,
@@ -75,12 +85,12 @@ func (s *AggregatorService) SearchFlights(
 	if err == nil {
 		cacheHit = true
 	} else {
-		slog.Warn("failed to get flight from cache", slog.String("error", err.Error()))
+		slog.WarnContext(ctx, "failed to get flight from cache", slog.String("error", err.Error()))
 	}
 
 	metadata, err = s.Cache.GetMetadata(ctx, cacheKey)
 	if err != nil {
-		slog.Warn("failed to get metadata from cache", slog.String("error", err.Error()))
+		slog.WarnContext(ctx, "failed to get metadata from cache", slog.String("error", err.Error()))
 	}
 
 	// cache miss get from provider and store to cache
@@ -124,7 +134,7 @@ func (s *AggregatorService) SearchFlights(
 	}
 
 	// filter, rank, and sort flights
-	filteredFlights := flight.FilterFlights(flights, req.FilterOption)
+	filteredFlights := flight.FilterFlights(ctx, flights, req.FilterOption)
 	rankedFlights := flight.RankFlights(filteredFlights)
 	sortedFlights := flight.SortFlights(rankedFlights, req.SortOption)
 
@@ -176,7 +186,7 @@ func (s *AggregatorService) getFromProvider(ctx context.Context,
 	var allFlights []dto.Flight
 	for result := range results {
 		if result.Error != nil {
-			slog.Warn("provider failed",
+			slog.WarnContext(ctx, "provider failed",
 				slog.String("provider", result.Provider),
 				slog.Any("error", result.Error))
 			numberOfFailedProviders++

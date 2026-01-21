@@ -130,12 +130,14 @@ func (p *Provider) Search(ctx context.Context, criteria dto.SearchCriteria) ([]d
 		// always success not simulate error
 		if rand.Float64() < 0 {
 			lastErr = providerutils.ErrProviderInternalError
-			slog.Error("failed to call batikair flight search API", "attempt", attempt+1, "error", lastErr)
+			slog.ErrorContext(ctx, "failed to call batikair flight search API", "attempt",
+				attempt+1, "error", lastErr)
 
 			if attempt < p.MaxRetries {
 				// Exponential backoff: 200ms * 2^attempt
 				backoff := time.Duration(200*(1<<attempt)) * time.Millisecond
-				slog.Info("retrying with exponential backoff", "backoff", backoff, "next_attempt", attempt+2)
+				slog.InfoContext(ctx, "retrying with exponential backoff", "backoff",
+					backoff, "next_attempt", attempt+2)
 				select {
 				case <-time.After(backoff):
 					continue

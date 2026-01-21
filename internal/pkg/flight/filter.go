@@ -1,6 +1,7 @@
 package flight
 
 import (
+	"context"
 	"log/slog"
 	"strings"
 	"time"
@@ -8,7 +9,7 @@ import (
 	"github.com/ijalalfrz/flight-search-aggregation-service/internal/app/dto"
 )
 
-func FilterFlights(flights []dto.Flight, filterOpts *dto.FilterOption) []dto.Flight {
+func FilterFlights(ctx context.Context, flights []dto.Flight, filterOpts *dto.FilterOption) []dto.Flight {
 	if filterOpts == nil {
 		return flights
 	}
@@ -46,13 +47,13 @@ func FilterFlights(flights []dto.Flight, filterOpts *dto.FilterOption) []dto.Fli
 		}
 
 		if filterOpts.DepartureTimeStart != nil && filterOpts.DepartureTimeEnd != nil {
-			if !isWithinTimeRange(flight.Departure.Datetime, *filterOpts.DepartureTimeStart, *filterOpts.DepartureTimeEnd) {
+			if !isWithinTimeRange(ctx, flight.Departure.Datetime, *filterOpts.DepartureTimeStart, *filterOpts.DepartureTimeEnd) {
 				continue
 			}
 		}
 
 		if filterOpts.ArrivalTimeStart != nil && filterOpts.ArrivalTimeEnd != nil {
-			if !isWithinTimeRange(flight.Arrival.Datetime, *filterOpts.ArrivalTimeStart, *filterOpts.ArrivalTimeEnd) {
+			if !isWithinTimeRange(ctx, flight.Arrival.Datetime, *filterOpts.ArrivalTimeStart, *filterOpts.ArrivalTimeEnd) {
 				continue
 			}
 		}
@@ -65,7 +66,7 @@ func FilterFlights(flights []dto.Flight, filterOpts *dto.FilterOption) []dto.Fli
 
 // startTime and endTime will be time only, without date and will depend on targetTime timezone
 // e.g. arrival at gmt+8 at 14:00, so will be checked if 14:00 is between startTime and endTime
-func isWithinTimeRange(targetTime string, startTime string, endTime string) bool {
+func isWithinTimeRange(ctx context.Context, targetTime string, startTime string, endTime string) bool {
 	targetTimeParsed, err := time.Parse(time.RFC3339, targetTime)
 	if err != nil {
 		return false
@@ -73,13 +74,13 @@ func isWithinTimeRange(targetTime string, startTime string, endTime string) bool
 
 	startTimeParsed, err := time.ParseInLocation("15:04", startTime, targetTimeParsed.Location())
 	if err != nil {
-		slog.Error("failed to parse start time", slog.String("time", startTime), slog.Any("error", err))
+		slog.ErrorContext(ctx, "failed to parse start time", slog.String("time", startTime), slog.Any("error", err))
 		return false
 	}
 
 	endTimeParsed, err := time.ParseInLocation("15:04", endTime, targetTimeParsed.Location())
 	if err != nil {
-		slog.Error("failed to parse end time", slog.String("time", endTime), slog.Any("error", err))
+		slog.ErrorContext(ctx, "failed to parse end time", slog.String("time", endTime), slog.Any("error", err))
 		return false
 	}
 

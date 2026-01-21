@@ -26,6 +26,7 @@ func MakeHTTPRouter(
 
 	router.Route("/api/v1/flights", func(router chi.Router) {
 		router.Use(
+			httptransport.RequestID(),
 			httptransport.CORSMiddleware(),
 			httptransport.Recoverer(slog.Default()),
 			render.SetContentType(render.ContentTypeJSON),

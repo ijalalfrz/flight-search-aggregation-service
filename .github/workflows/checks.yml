@@ -22,4 +22,4 @@ jobs:
       - name: Run tests
         run: make tests-unit
       - name: Run load tests
-        run: make tests-load
+        run: make setup &&make tests-load

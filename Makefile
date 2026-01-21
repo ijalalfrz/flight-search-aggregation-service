@@ -41,7 +41,7 @@ setup-env:
 setup: setup-env start
 
 tests-unit:
-	go test -v -timeout 10s -count=1 ./... -coverprofile=coverage.out
+	go test -tags=unit -v -timeout 10s -count=1 ./... -coverprofile=coverage.out
 
 tests-load:
-	APP_HOST=http://localhost:8080 REDIS_ADDR=localhost:6379 REDIS_PASSWORD=redis123 go test -v -count=2 ./tests/load/...
+	APP_HOST=http://localhost:8080 REDIS_ADDR=localhost:6379 REDIS_PASSWORD=redis123 go test -tags=load -v -count=2 ./tests/load/...

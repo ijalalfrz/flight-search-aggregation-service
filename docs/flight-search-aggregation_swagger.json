@@ -1,0 +1,334 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "flight-search-aggregation-service",
+        "title": "Flight Search Aggregation Service API",
+        "contact": {},
+        "license": {
+            "name": "Rizal Alfarizi",
+            "url": "https://github.com/ijalalfrz"
+        },
+        "version": "0.0.1"
+    },
+    "host": "localhost:8080",
+    "basePath": "/",
+    "paths": {
+        "/api/v1/flights/search": {
+            "post": {
+                "description": "Search flights from all providers and return the best flights",
+                "tags": [
+                    "Flights"
+                ],
+                "summary": "Search flights",
+                "parameters": [
+                    {
+                        "description": "Search Criteria",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/github_com_ijalalfrz_flight-search-aggregation-service_internal_app_dto.SearchCriteria"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_ijalalfrz_flight-search-aggregation-service_internal_app_dto.SearchFlightResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_ijalalfrz_flight-search-aggregation-service_internal_app_dto.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_ijalalfrz_flight-search-aggregation-service_internal_app_dto.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_ijalalfrz_flight-search-aggregation-service_internal_app_dto.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "github_com_ijalalfrz_flight-search-aggregation-service_internal_app_dto.Airline": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_ijalalfrz_flight-search-aggregation-service_internal_app_dto.Arrival": {
+            "type": "object",
+            "properties": {
+                "airport": {
+                    "type": "string"
+                },
+                "city": {
+                    "type": "string"
+                },
+                "datetime": {
+                    "type": "string"
+                },
+                "timestamp": {
+                    "type": "integer"
+                }
+            }
+        },
+        "github_com_ijalalfrz_flight-search-aggregation-service_internal_app_dto.Baggage": {
+            "type": "object",
+            "properties": {
+                "carry_on": {
+                    "type": "string"
+                },
+                "checked": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_ijalalfrz_flight-search-aggregation-service_internal_app_dto.Departure": {
+            "type": "object",
+            "properties": {
+                "airport": {
+                    "type": "string"
+                },
+                "city": {
+                    "type": "string"
+                },
+                "datetime": {
+                    "type": "string"
+                },
+                "timestamp": {
+                    "type": "integer"
+                }
+            }
+        },
+        "github_com_ijalalfrz_flight-search-aggregation-service_internal_app_dto.Duration": {
+            "type": "object",
+            "properties": {
+                "formatted": {
+                    "type": "string"
+                },
+                "total_minutes": {
+                    "type": "integer"
+                }
+            }
+        },
+        "github_com_ijalalfrz_flight-search-aggregation-service_internal_app_dto.ErrorResponse": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_ijalalfrz_flight-search-aggregation-service_internal_app_dto.FilterOption": {
+            "type": "object",
+            "properties": {
+                "airline": {
+                    "type": "string"
+                },
+                "arrival_time_end": {
+                    "type": "string"
+                },
+                "arrival_time_start": {
+                    "type": "string"
+                },
+                "departure_time_end": {
+                    "type": "string"
+                },
+                "departure_time_start": {
+                    "type": "string"
+                },
+                "max_duration_minutes": {
+                    "type": "integer",
+                    "minimum": 0
+                },
+                "max_price": {
+                    "type": "number"
+                },
+                "max_stops": {
+                    "type": "integer",
+                    "minimum": 0
+                },
+                "min_duration_minutes": {
+                    "type": "integer",
+                    "minimum": 0
+                },
+                "min_price": {
+                    "type": "number"
+                },
+                "min_stops": {
+                    "type": "integer",
+                    "minimum": 0
+                }
+            }
+        },
+        "github_com_ijalalfrz_flight-search-aggregation-service_internal_app_dto.Flight": {
+            "type": "object",
+            "properties": {
+                "aircraft": {
+                    "type": "string"
+                },
+                "airline": {
+                    "$ref": "#/definitions/github_com_ijalalfrz_flight-search-aggregation-service_internal_app_dto.Airline"
+                },
+                "amenities": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "arrival": {
+                    "$ref": "#/definitions/github_com_ijalalfrz_flight-search-aggregation-service_internal_app_dto.Arrival"
+                },
+                "available_seats": {
+                    "type": "integer"
+                },
+                "baggage": {
+                    "$ref": "#/definitions/github_com_ijalalfrz_flight-search-aggregation-service_internal_app_dto.Baggage"
+                },
+                "cabin_class": {
+                    "type": "string"
+                },
+                "departure": {
+                    "$ref": "#/definitions/github_com_ijalalfrz_flight-search-aggregation-service_internal_app_dto.Departure"
+                },
+                "duration": {
+                    "$ref": "#/definitions/github_com_ijalalfrz_flight-search-aggregation-service_internal_app_dto.Duration"
+                },
+                "flight_number": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "price": {
+                    "$ref": "#/definitions/github_com_ijalalfrz_flight-search-aggregation-service_internal_app_dto.Price"
+                },
+                "provider": {
+                    "type": "string"
+                },
+                "score": {
+                    "type": "number"
+                },
+                "stops": {
+                    "type": "integer"
+                }
+            }
+        },
+        "github_com_ijalalfrz_flight-search-aggregation-service_internal_app_dto.Metadata": {
+            "type": "object",
+            "properties": {
+                "cache_hit": {
+                    "type": "boolean"
+                },
+                "providers_failed": {
+                    "type": "integer"
+                },
+                "providers_queried": {
+                    "type": "integer"
+                },
+                "providers_succeeded": {
+                    "type": "integer"
+                },
+                "search_time_ms": {
+                    "type": "integer"
+                },
+                "total_results": {
+                    "type": "integer"
+                }
+            }
+        },
+        "github_com_ijalalfrz_flight-search-aggregation-service_internal_app_dto.Price": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "type": "number"
+                },
+                "currency": {
+                    "type": "string"
+                },
+                "formatted": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_ijalalfrz_flight-search-aggregation-service_internal_app_dto.SearchCriteria": {
+            "type": "object",
+            "required": [
+                "cabin_class",
+                "departure_date",
+                "destination",
+                "origin",
+                "passengers"
+            ],
+            "properties": {
+                "cabin_class": {
+                    "type": "string"
+                },
+                "departure_date": {
+                    "type": "string"
+                },
+                "destination": {
+                    "type": "string"
+                },
+                "filter_option": {
+                    "$ref": "#/definitions/github_com_ijalalfrz_flight-search-aggregation-service_internal_app_dto.FilterOption"
+                },
+                "origin": {
+                    "type": "string"
+                },
+                "passengers": {
+                    "type": "integer",
+                    "maximum": 10
+                },
+                "sort_option": {
+                    "$ref": "#/definitions/github_com_ijalalfrz_flight-search-aggregation-service_internal_app_dto.SortOption"
+                }
+            }
+        },
+        "github_com_ijalalfrz_flight-search-aggregation-service_internal_app_dto.SearchFlightResponse": {
+            "type": "object",
+            "properties": {
+                "flights": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/github_com_ijalalfrz_flight-search-aggregation-service_internal_app_dto.Flight"
+                    }
+                },
+                "metadata": {
+                    "$ref": "#/definitions/github_com_ijalalfrz_flight-search-aggregation-service_internal_app_dto.Metadata"
+                },
+                "search_criteria": {
+                    "$ref": "#/definitions/github_com_ijalalfrz_flight-search-aggregation-service_internal_app_dto.SearchCriteria"
+                }
+            }
+        },
+        "github_com_ijalalfrz_flight-search-aggregation-service_internal_app_dto.SortOption": {
+            "type": "object",
+            "properties": {
+                "field": {
+                    "type": "string"
+                },
+                "order": {
+                    "type": "string"
+                }
+            }
+        }
+    }
+}

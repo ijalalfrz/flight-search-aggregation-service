@@ -1,0 +1,43 @@
+services:
+  app:
+    env_file:
+      - .env
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    depends_on:
+      redis:
+        condition: service_healthy
+    stop_signal: SIGKILL
+    restart: "on-failure:5"
+
+  redis:
+    image: redis:7.4-alpine
+    restart: always
+    ports:
+      - "6379:6379"
+    command: redis-server --save 20 1 --loglevel warning --requirepass redis123
+    volumes:
+      - cache:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "redis123", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  swagger:
+    image: swaggerapi/swagger-ui:v5.9.0
+    ports:
+      - "8444:8080"
+    volumes:
+      - ./docs:/usr/share/nginx/html/docs
+    environment:
+      URLS: |
+        [
+          {"url": "docs/flight-search-aggregation_swagger.json", "name": "Flight Search Aggregation API"}
+        ]
+      BASE_URL: /docs
+volumes:
+  cache:

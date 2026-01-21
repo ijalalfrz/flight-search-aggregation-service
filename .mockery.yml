@@ -1,0 +1,25 @@
+all: false
+dir: '{{.InterfaceDir}}'
+filename: mocks.go
+force-file-write: true
+formatter: goimports
+generate: true
+include-auto-generated: false
+log-level: info
+structname: '{{.Mock}}{{.InterfaceName}}'
+pkgname: '{{.SrcPackageName}}'
+recursive: false
+require-template-schema-exists: true
+template: testify
+template-schema: '{{.Template}}.schema.json'
+packages:
+  github.com/ijalalfrz/flight-search-aggregation-service/internal/app/service:
+    config:
+      all: true
+  github.com/ijalalfrz/flight-search-aggregation-service/internal/pkg/flightprovider:
+    config:
+      all: true
+  github.com/ijalalfrz/flight-search-aggregation-service/internal/pkg/flight:
+    config:
+      all: true
+

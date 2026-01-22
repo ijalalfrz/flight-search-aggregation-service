@@ -3,7 +3,6 @@ package flight
 import (
 	"context"
 	"log/slog"
-	"strings"
 	"time"
 
 	"github.com/ijalalfrz/flight-search-aggregation-service/internal/app/dto"
@@ -17,8 +16,7 @@ func FilterFlights(ctx context.Context, flights []dto.Flight, filterOpts *dto.Fi
 	results := make([]dto.Flight, 0, len(flights))
 
 	for _, flight := range flights {
-		if filterOpts.Airline != nil && !strings.Contains(strings.ToLower(flight.Airline.Name),
-			strings.ToLower(*filterOpts.Airline)) {
+		if filterOpts.Airline != nil && *filterOpts.Airline != flight.Airline.Code {
 			continue
 		}
 

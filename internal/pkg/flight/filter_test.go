@@ -12,19 +12,19 @@ import (
 )
 
 func TestFilterFlights(t *testing.T) {
-	airlineGaruda := "Garuda"
+	airlineGaruda := "GA"
 	maxPrice := 1000000.0
 
 	flights := []dto.Flight{
 		{
 			ID:      "1",
-			Airline: dto.Airline{Name: "Garuda Indonesia"},
+			Airline: dto.Airline{Name: "Garuda Indonesia", Code: "GA"},
 			Price:   dto.Price{Amount: 800000},
 			Stops:   0,
 		},
 		{
 			ID:      "2",
-			Airline: dto.Airline{Name: "Lion Air"},
+			Airline: dto.Airline{Name: "Lion Air", Code: "JT"},
 			Price:   dto.Price{Amount: 1200000},
 			Stops:   1,
 		},

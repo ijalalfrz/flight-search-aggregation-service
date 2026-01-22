@@ -125,11 +125,13 @@ func (p *Provider) flightToDTO(flights []Flight) []dto.Flight {
 			},
 			FlightNumber: flight.FlightCode,
 			Departure: dto.Departure{
+				City:      providerutils.MapAirportToCity[flight.FromAirport],
 				Airport:   flight.FromAirport,
 				Datetime:  flight.DepartTime.Format(time.RFC3339),
 				Timestamp: flight.DepartTime.Unix(),
 			},
 			Arrival: dto.Arrival{
+				City:      providerutils.MapAirportToCity[flight.ToAirport],
 				Airport:   flight.ToAirport,
 				Datetime:  flight.ArriveTime.Format(time.RFC3339),
 				Timestamp: flight.ArriveTime.Unix(),
@@ -141,7 +143,7 @@ func (p *Provider) flightToDTO(flights []Flight) []dto.Flight {
 			Stops: p.getStops(flight),
 			Price: dto.Price{
 				Amount:    float64(flight.PriceIDR),
-				Currency:  "IDR",
+				Currency:  providerutils.CurrencyIDR,
 				Formatted: utils.FormatRupiah(int64(flight.PriceIDR)),
 			},
 			AvailableSeats: flight.Seats,

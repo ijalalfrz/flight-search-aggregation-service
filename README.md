@@ -91,28 +91,135 @@ curl -X POST http://localhost:8080/api/v1/flights/search \
 
 ```json
 {
-  "cabin_class": "string",
-  "departure_date": "string",
-  "destination": "string",
-  "filter_option": {
-    "airline": "string",
-    "arrival_time_end": "string",
-    "arrival_time_start": "string",
-    "departure_time_end": "string",
-    "departure_time_start": "string",
-    "max_duration_minutes": 0,
-    "max_price": 0,
-    "max_stops": 0,
-    "min_duration_minutes": 0,
-    "min_price": 0,
-    "min_stops": 0
+  "cabin_class": "string", // economy, business, first
+  "departure_date": "string", // YYYY-MM-DD format, example: 2025-12-15
+  "origin": "string", // IATA Airport Code, example: CGK
+  "destination": "string", // IATA Airport Code, example: DPS
+  "filter_option": { // OPTIONAL
+    "airline": "string", // airline code, example: GA, JT
+    "arrival_time_start": "string", // example: 08:00, overnight flight not supported
+    "arrival_time_end": "string", // example: 10:00, overnight flight not supported
+    "departure_time_start": "string", // example: 08:00, overnight flight not supported
+    "departure_time_end": "string", // example: 10:00, overnight flight not supported
+    "min_duration_minutes": 0, // minimum duration in minutes
+    "max_duration_minutes": 0, // maximum duration in minutes
+    "min_price": 0, 
+    "max_price": 0, 
+    "min_stops": 0, 
+    "max_stops": 0 
   },
-  "origin": "string",
-  "passengers": 10,
-  "sort_option": {
-    "field": "string",
-    "order": "string"
+  "passengers": 10, // number of passengers max 10
+  "sort_option": { // OPTIONAL, default by sort by recommended (best value)
+    "field": "string", // price, duration, stops, departure_time, arrival_time, recommended
+    "order": "string" // asc, desc
   }
+}
+```
+
+**Example Request Response**
+
+Request:
+```bash
+curl --location 'http://localhost:8080/api/v1/flights/search' \
+--header 'Content-Type: application/json' \
+--data '{
+    "origin": "CGK",
+    "destination": "DPS",
+    "departure_date": "2025-12-15",
+    "return_date": null,
+    "passengers": 10,
+    "cabin_class": "economy",
+    "filter_option": {
+        "min_price": 400000,
+        "max_price": 800001,
+        "airline": "JT"
+    }
+}'
+```
+
+Response:
+```json
+{
+    "search_criteria": {
+        "origin": "CGK",
+        "destination": "DPS",
+        "departure_date": "2025-12-15",
+        "passengers": 10,
+        "cabin_class": "economy",
+        "filter_option": {
+            "min_price": 400000,
+            "max_price": 800001,
+            "airline": "JT"
+        }
+    },
+    "metadata": {
+        "total_results": 1,
+        "providers_queried": 4,
+        "providers_succeeded": 4,
+        "providers_failed": 0,
+        "search_time_ms": 2,
+        "cache_hit": true
+    },
+    "flights": [
+        {
+            "id": "JT650_LionAir",
+            "provider": "LionAir",
+            "airline": {
+                "name": "LionAir",
+                "code": "JT"
+            },
+            "flight_number": "JT650",
+            "departure": {
+                "airport": "CGK",
+                "city": "Jakarta",
+                "datetime": "2025-12-15T16:20:00+07:00",
+                "timestamp": 1765790400
+            },
+            "arrival": {
+                "airport": "DPS",
+                "city": "Denpasar",
+                "datetime": "2025-12-15T21:10:00+08:00",
+                "timestamp": 1765804200
+            },
+            "duration": {
+                "total_minutes": 230,
+                "formatted": "3h 50m"
+            },
+            "stops": 1,
+            "price": {
+                "amount": 780000,
+                "currency": "IDR",
+                "formatted": "Rp780.000"
+            },
+            "available_seats": 52,
+            "cabin_class": "economy",
+            "aircraft": "Boeing 737-800",
+            "amenities": [],
+            "baggage": {
+                "carry_on": "7 kg",
+                "checked": "20 kg"
+            },
+            "score": 0.05
+        }
+    ]
+}
+```
+
+Error Response:
+
+- No Flights Found
+```json
+Status Code: 404
+{
+    "error": "no flights found"
+}
+```
+
+- Validation Error
+```json
+Status Code: 400
+{
+    "error": "max_price must be greater than min_price"
 }
 ```
 
@@ -124,6 +231,7 @@ curl http://localhost:8080/health
 ## API Documentation
 
 Swagger UI is available at: [http://localhost:8444/docs](http://localhost:8444/docs)
+OpenAPI spec JSON: `docs/flight-search-aggregation_swagger.json`
 
 ## Architecture Notes
 
@@ -143,7 +251,7 @@ The Flight Search Aggregation Service is a high-performance API that:
 Each airline provider implements:
 - Simulated API calls with configurable delays and failure rates
 - Exponential backoff retry logic
-- Provider-specific rate limiting using Redis (GCRA algorithm)
+- Provider-specific rate limiting using Redis (GCRA algorithm) `redis_rate` package.
 - Data normalization to common DTO format
 
 **Caching Layer:**
@@ -151,6 +259,10 @@ Each airline provider implements:
 - Cache key based on search criteria
 - TTL-based expiration
 - Prevents thundering herd via lock acquisition
+- Flight cache key use all search criteria:
+    - `flight:cache:{departure_date}:{origin}:{destination}:{cabin_class}:{passengers}`
+    - `flight:cache:{departure_date}:{origin}:{destination}:{cabin_class}:{passengers}:metadata`
+
 
 **Aggregation Layer:**
 - Concurrent provider queries using goroutines
@@ -281,6 +393,11 @@ REDIS_DB=0
 PROVIDER_LOCK_TIMEOUT=3s
 PROVIDER_CACHE_EXPIRATION=1m
 
+# Provider config
+# Rate limit: assuming lion air provider have rate limit 20 rps and here we will
+# define rate limit lower than 20, because we don't want to get rate limit error from provider it self
+# or provider might ban you from calling over than limit so we prevent with own rate limit
+
 # Provider Configuration - LionAir
 LION_AIR_PROVIDER_SEARCH_URL=tests/mockprovider/lion_air_search_response.json
 LION_AIR_PROVIDER_TIMEOUT=5s
@@ -318,13 +435,13 @@ HTTP_TIMEOUT=30s
 
 ## Performance Characteristics
 
-- **Cache Hit Latency**: ~10-30ms (Redis read + filtering/sorting)
+- **Cache Hit Latency**: ~2-10ms (Redis read + filtering/sorting)
 - **Cache Miss Latency**: ~200-400ms (concurrent provider queries + caching)
 - **Concurrent Provider Queries**: All providers queried in parallel using goroutines
 
 ## Rate Limiting Behavior
 
-The system uses `redis_rate`:
+The system uses `redis_rate` (https://github.com/go-redis/redis_rate):
 - Providers are rate-limited individually
 - Failed requests due to rate limiting are tracked in metadata
 - Rate limits are enforced across all service instances (distributed)

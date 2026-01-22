@@ -29,6 +29,10 @@ func FilterFlights(flights []dto.Flight, criteria dto.SearchCriteria) []dto.Flig
 			continue
 		}
 
+		if criteria.Passengers != 0 && flight.AvailableSeats < criteria.Passengers {
+			continue
+		}
+
 		results = append(results, flight)
 	}
 

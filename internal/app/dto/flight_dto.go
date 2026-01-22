@@ -64,8 +64,8 @@ type SearchCriteria struct {
 	Origin        string        `json:"origin" validate:"required"`
 	Destination   string        `json:"destination" validate:"required"`
 	DepartureDate string        `json:"departure_date" validate:"required"`
-	Passengers    int           `json:"passengers" validate:"required,max=10"`
-	CabinClass    string        `json:"cabin_class" validate:"required"`
+	Passengers    int           `json:"passengers" validate:"required,min=1,max=10"`
+	CabinClass    string        `json:"cabin_class" validate:"required,oneof=economy business first"`
 	SortOption    *SortOption   `json:"sort_option,omitempty"`
 	FilterOption  *FilterOption `json:"filter_option,omitempty"`
 }

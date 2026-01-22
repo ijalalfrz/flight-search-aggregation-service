@@ -71,11 +71,13 @@ func (p *Provider) flightToDTO(flights []Flight) []dto.Flight {
 			},
 			FlightNumber: flight.FlightNumber,
 			Departure: dto.Departure{
+				City:      providerutils.MapAirportToCity[flight.Origin],
 				Airport:   flight.Origin,
 				Datetime:  departureTime.Format(time.RFC3339),
 				Timestamp: departureTime.Unix(),
 			},
 			Arrival: dto.Arrival{
+				City:      providerutils.MapAirportToCity[flight.Destination],
 				Airport:   flight.Destination,
 				Datetime:  arrivalTime.Format(time.RFC3339),
 				Timestamp: arrivalTime.Unix(),

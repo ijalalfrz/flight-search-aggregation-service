@@ -36,7 +36,7 @@ func TestSearchCriteria_Validate(t *testing.T) {
 		Destination:   "DPS",
 		DepartureDate: "2024-01-01",
 		Passengers:    1,
-		CabinClass:    "ECONOMY",
+		CabinClass:    "economy",
 	}
 
 	t.Run("valid_criteria", validateRequest(validCriteria, false, ""))
@@ -45,7 +45,7 @@ func TestSearchCriteria_Validate(t *testing.T) {
 		Destination:   "DPS",
 		DepartureDate: "2024-01-01",
 		Passengers:    1,
-		CabinClass:    "ECONOMY",
+		CabinClass:    "economy",
 	}, true, "origin is a required field"))
 
 	t.Run("invalid_sort_field", validateRequest(SearchCriteria{
@@ -53,7 +53,7 @@ func TestSearchCriteria_Validate(t *testing.T) {
 		Destination:   "DPS",
 		DepartureDate: "2024-01-01",
 		Passengers:    1,
-		CabinClass:    "ECONOMY",
+		CabinClass:    "economy",
 		SortOption:    &SortOption{Field: "invalid", Order: "asc"},
 	}, true, "Invalid sort field invalid"))
 
@@ -62,7 +62,7 @@ func TestSearchCriteria_Validate(t *testing.T) {
 		Destination:   "DPS",
 		DepartureDate: "2024-01-01",
 		Passengers:    1,
-		CabinClass:    "ECONOMY",
+		CabinClass:    "economy",
 		FilterOption: &FilterOption{
 			MinPrice: ptrFloat(1000),
 			MaxPrice: ptrFloat(500),
@@ -74,7 +74,7 @@ func TestSearchCriteria_Validate(t *testing.T) {
 		Destination:   "DPS",
 		DepartureDate: "2024-01-01",
 		Passengers:    1,
-		CabinClass:    "ECONOMY",
+		CabinClass:    "economy",
 		FilterOption: &FilterOption{
 			MinStops: ptrInt(2),
 			MaxStops: ptrInt(1),
@@ -86,7 +86,7 @@ func TestSearchCriteria_Validate(t *testing.T) {
 		Destination:   "DPS",
 		DepartureDate: "2024-01-01",
 		Passengers:    1,
-		CabinClass:    "ECONOMY",
+		CabinClass:    "economy",
 		FilterOption: &FilterOption{
 			MinDurationMinutes: ptrInt(200),
 			MaxDurationMinutes: ptrInt(100),
@@ -111,7 +111,7 @@ func TestSearchCriteria_Bind(t *testing.T) {
 		Destination:   "DPS",
 		DepartureDate: "2024-01-01",
 		Passengers:    1,
-		CabinClass:    "ECONOMY",
+		CabinClass:    "economy",
 	}
 
 	t.Run("valid_bind", bindRequest(validCriteria, false))
